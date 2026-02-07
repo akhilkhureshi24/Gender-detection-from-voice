@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Gender Recognizer | Premium AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.5);
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            padding: 3rem 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-weight: 600;
+            font-size: 2.25rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #818cf8, #f472b6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: #94a3b8;
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+        }
+
+        .recorder-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .record-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px var(--primary-glow);
+            position: relative;
+        }
+
+        .record-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .record-btn:active {
+            transform: scale(0.95);
+        }
+
+        .record-btn.recording {
+            background: #ef4444;
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .record-icon {
+            width: 40px;
+            height: 40px;
+            fill: currentColor;
+        }
+
+        .status {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: #cbd5e1;
+            height: 1.5rem;
+        }
+
+        .visualizer {
+            width: 100%;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            display: none;
+        }
+
+        .bar {
+            width: 4px;
+            height: 20%;
+            background: var(--primary);
+            margin: 0 2px;
+            border-radius: 2px;
+            transition: height 0.1s ease;
+        }
+
+        .result-card {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            display: none;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.5s ease;
+        }
+
+        .result-card.visible {
+            display: block;
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .gender-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+
+        .gender-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .confidence {
+            font-size: 1rem;
+            color: #818cf8;
+            font-weight: 400;
+        }
+
+        .loader {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s infinite linear;
+            display: none;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="glass-card">
+            <h1>Voice DNA</h1>
+            <p>Speak clearly to identify gender identity</p>
+
+            <div class="recorder-section">
+                <button id="recordBtn" class="record-btn" title="Start Recording">
+                    <svg viewBox="0 0 24 24" class="record-icon">
+                        <circle cx="12" cy="12" r="6" />
+                    </svg>
+                </button>
+
+                <div id="status" class="status">Tap to start recording</div>
+
+                <div id="visualizer" class="visualizer">
+                    <!-- Bars dynamic via JS -->
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+
+                <div id="loader" class="loader"></div>
+
+                <div id="resultCard" class="result-card">
+                    <div class="gender-label">Prediction</div>
+                    <div id="genderValue" class="gender-value">Male</div>
+                    <div id="confidenceValue" class="confidence">Confidence: 98.4%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const recordBtn = document.getElementById('recordBtn');
+        const statusText = document.getElementById('status');
+        const resultCard = document.getElementById('resultCard');
+        const genderValue = document.getElementById('genderValue');
+        const confidenceValue = document.getElementById('confidenceValue');
+        const loader = document.getElementById('loader');
+        const visualizer = document.getElementById('visualizer');
+
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        // Check if running via file://
+        if (window.location.protocol === 'file:') {
+            statusText.innerHTML = '<span style="color: #ef4444;">Error: Open this via http://127.0.0.1:5000 not by double-clicking the file.</span>';
+        }
+
+        const API_BASE_URL = window.location.port === '5001' ? '' : 'http://127.0.0.1:5001';
+        console.log("Using API Base:", API_BASE_URL || 'relative');
+
+        async function checkBackend() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/health`);
+                const data = await res.json();
+                console.log("Backend status:", data);
+                statusText.innerText = "Connection: Online";
+                statusText.style.color = "#4ade80";
+                setTimeout(() => {
+                    if (!isRecording) {
+                        statusText.innerText = "Tap to start recording";
+                        statusText.style.color = "#cbd5e1";
+                    }
+                }, 2000);
+            } catch (err) {
+                console.error("Backend unreachable:", err);
+                statusText.innerHTML = '<span style="color: #ef4444;">Backend unreachable. Run app.py and use http://127.0.0.1:5000</span>';
+            }
+        }
+        checkBackend();
+
+        recordBtn.onclick = async () => {
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        await uploadAudio(audioBlob);
+                    };
+
+                    audioChunks = [];
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recordBtn.classList.add('recording');
+                    statusText.innerText = "Recording... Tap to stop";
+                    resultCard.classList.remove('visible');
+                    visualizer.style.display = 'flex';
+
+                    // Simple viz animation start
+                    startVisualizer();
+                } catch (err) {
+                    console.error("Error accessing mic:", err);
+                    statusText.innerText = "Error: Access to mic denied";
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                recordBtn.classList.remove('recording');
+                statusText.innerText = "Processing...";
+                visualizer.style.display = 'none';
+            }
+        };
+
+        async function uploadAudio(blob) {
+            loader.style.display = 'block';
+            statusText.innerText = "Analyzing voice patterns...";
+            resultCard.classList.remove('visible');
+
+            const formData = new FormData();
+            formData.append('audio', blob, 'recording.webm');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/predict`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    if (data.error === 'FFMPEG missing') {
+                        statusText.innerHTML = `<span style="color: #fca5a5;">Error: ${data.message}</span>`;
+                    } else {
+                        statusText.innerText = "Error: " + data.error;
+                    }
+                } else {
+                    statusText.innerText = "Analysis Complete";
+                    genderValue.innerText = data.gender;
+                    confidenceValue.innerText = "Confidence: " + data.confidence;
+                    resultCard.style.display = 'block';
+                    setTimeout(() => resultCard.classList.add('visible'), 50);
+                }
+            } catch (err) {
+                console.error("FULL UPLOAD ERROR:", err);
+                statusText.innerHTML = `<span style="color: #ef4444;">Network Error: ${err.message}</span><br><small>Check if app.py is running on port 5001</small>`;
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        function startVisualizer() {
+            const bars = document.querySelectorAll('.bar');
+            const interval = setInterval(() => {
+                if (!isRecording) {
+                    clearInterval(interval);
+                    return;
+                }
+                bars.forEach(bar => {
+                    const h = Math.random() * 80 + 20;
+                    bar.style.height = h + '%';
+                });
+            }, 100);
+        }
+    </script>
+</body>
+
+</html>

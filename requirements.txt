@@ -1,0 +1,17 @@
+flask
+flask-cors
+librosa
+numpy
+tensorflow
+pydub
+scikit-learn
+scipy
+soundfile
+soxr
+numba
+lazy_loader
+msgpack
+joblib
+decorator
+audioread
+typing_extensions
